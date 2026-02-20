@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tanishq's AI Assistant</title>
+</head>
+<body style="margin:0;background:#080810;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+
+<div style="font-family:sans-serif;color:rgba(255,255,255,0.25);font-size:12px;text-align:center;position:fixed;top:16px;left:0;right:0;letter-spacing:.5px;">
+  PREVIEW — widget appears bottom-right on your portfolio
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap');
+
+#_t * { box-sizing:border-box; margin:0; padding:0; }
+#_t { font-family:'DM Sans',sans-serif; }
+
+/* ── FAB ── */
+#_tfab {
+  position:fixed; bottom:26px; right:26px; z-index:99998;
+  width:62px; height:62px; border-radius:50%;
+  background:linear-gradient(145deg,#0f1729,#1a2d52);
+  border:1.5px solid rgba(100,160,255,0.2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease;
+  animation:tfglow 3s ease-in-out infinite;
+}
+#_tfab:hover { transform:scale(1.08); box-shadow:0 12px 40px rgba(0,0,0,0.7), 0 0 0 10px rgba(80,140,255,0.1); }
+@keyframes tfglow {
+  0%,100% { box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(80,140,255,0.08); }
+  50%      { box-shadow:0 8px 32px rgba(0,0,0,0.6), 0 0 32px rgba(80,140,255,0.22); }
+}
+#_tfab svg { position:absolute; transition:transform .3s ease, opacity .3s ease; }
+#_tfab .ic  { transform:scale(1); opacity:1; }
+#_tfab .ix  { transform:scale(0) rotate(-90deg); opacity:0; }
+#_tfab.open .ic { transform:scale(0) rotate(90deg); opacity:0; }
+#_tfab.open .ix { transform:scale(1) rotate(0); opacity:1; }
+#_tpip {
+  position:absolute; top:0; right:0;
+  width:16px; height:16px; border-radius:50%;
+  background:#4ade80; border:2.5px solid #080810;
+  animation:tpip 2.5s infinite;
+}
+@keyframes tpip {
+  0%,100% { box-shadow:0 0 0 0 rgba(74,222,128,.5); }
+  60%      { box-shadow:0 0 0 6px rgba(74,222,128,0); }
+}
+
+/* tooltip */
+#_ttooltip {
+  position:fixed; bottom:36px; right:100px;
+  background:#1a2d52; border:1px solid rgba(100,160,255,0.25);
+  color:#c8d8f8; font-size:12.5px; padding:8px 14px; border-radius:10px;
+  white-space:nowrap; font-family:'DM Sans',sans-serif; font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5); pointer-events:none;
+  animation:ttt .4s cubic-bezier(.34,1.4,.64,1);
+}
+#_ttooltip::after {
+  content:''; position:absolute; right:-6px; top:50%; transform:translateY(-50%);
+  border:6px solid transparent; border-right:none; border-left-color:#1a2d52;
+}
+@keyframes ttt { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:none} }
+
+/* ── Window ── */
+#_twin {
+  position:fixed; bottom:102px; right:26px;
+  width:385px; max-width:calc(100vw - 36px);
+  height:580px; max-height:calc(100vh - 120px);
+  background:#08080f;
+  border:1px solid rgba(100,160,255,0.1);
+  border-radius:22px;
+  display:flex; flex-direction:column;
+  z-index:99999;
+  box-shadow:0 40px 100px rgba(0,0,0,0.85), 0 0 0 1px rgba(80,140,255,0.04);
+  overflow:hidden;
+  transform-origin:bottom right;
+  transform:scale(.86) translateY(24px);
+  opacity:0; pointer-events:none;
+  transition:transform .38s cubic-bezier(.34,1.35,.64,1), opacity .25s ease;
+}
+#_twin.open { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+
+/* ── Header ── */
+#_thead {
+  padding:16px 18px 14px;
+  background:linear-gradient(160deg,#0c1528,#0a0f1e);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex; align-items:center; gap:13px; flex-shrink:0;
+  position:relative;
+}
+#_thead::after {
+  content:''; position:absolute; bottom:0; left:18px; right:18px;
+  height:1px; background:linear-gradient(90deg,transparent,rgba(80,140,255,0.3),transparent);
+}
+#_tav {
+  width:42px; height:42px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a6e,#4080e0);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:#fff;
+  box-shadow:0 0 20px rgba(64,128,224,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  position:relative;
+}
+#_tav::after {
+  content:''; position:absolute; bottom:1px; right:1px;
+  width:11px; height:11px; border-radius:50%;
+  background:#4ade80; border:2px solid #0a0f1e;
+}
+#_thname { font-family:'Syne',sans-serif; font-weight:600; font-size:14px; color:#eef2ff; }
+#_thsub  { font-size:11px; color:#5070a0; margin-top:3px; }
+#_thclose {
+  margin-left:auto; background:none; border:none; cursor:pointer;
+  color:rgba(255,255,255,0.25); padding:6px; border-radius:8px;
+  display:flex; transition:color .2s, background .2s;
+}
+#_thclose:hover { color:#eef2ff; background:rgba(255,255,255,0.06); }
+
+/* ── Welcome card ── */
+#_twelcome {
+  margin:14px 14px 8px;
+  background:linear-gradient(145deg,#0e1d38,#0a1428);
+  border:1px solid rgba(80,140,255,0.12);
+  border-radius:16px; padding:16px 18px; flex-shrink:0;
+  animation:_tin .3s ease;
+}
+#_twname { font-family:'Syne',sans-serif; font-weight:700; font-size:18px; color:#eef2ff; margin-bottom:3px; }
+#_twrole { font-size:11px; color:#4a70a8; font-weight:500; letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
+#_twbio  { font-size:12.5px; color:#7a90b8; line-height:1.6; margin-bottom:12px; }
+#_twtags { display:flex; flex-wrap:wrap; gap:5px; }
+.tw-tag {
+  background:rgba(80,140,255,0.08); border:1px solid rgba(80,140,255,0.16);
+  color:#6a9de0; font-size:11px; padding:3px 10px; border-radius:20px; font-weight:500;
+}
+
+/* ── Messages ── */
+#_tmsgs {
+  flex:1; overflow-y:auto; padding:12px 14px;
+  display:flex; flex-direction:column; gap:10px; scroll-behavior:smooth;
+}
+#_tmsgs::-webkit-scrollbar { width:3px; }
+#_tmsgs::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); border-radius:10px; }
+
+.tr { display:flex; gap:8px; align-items:flex-end; animation:_tin .25s ease; }
+@keyframes _tin { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.tr.user { flex-direction:row-reverse; }
+.tb {
+  max-width:82%; padding:10px 14px; border-radius:16px;
+  font-size:13.5px; line-height:1.6; color:#dde6ff;
+  font-family:'DM Sans',sans-serif;
+}
+.tr.bot  .tb { background:#0f1d35; border:1px solid rgba(80,140,255,0.1); border-bottom-left-radius:4px; }
+.tr.user .tb { background:linear-gradient(135deg,#1e3a6e,#2a55a8); border-bottom-right-radius:4px; color:#eef4ff; }
+.tb a { color:#60a5fa; text-decoration:none; border-bottom:1px solid rgba(96,165,250,0.25); }
+.tb a:hover { color:#93c5fd; }
+.tb strong { color:#aac4f0; }
+.tm {
+  width:27px; height:27px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a6e,#4080e0);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:9.5px; color:#fff;
+}
+.tdots { display:flex; gap:5px; padding:10px 14px; }
+.tdot  { width:6px;height:6px;border-radius:50%;background:#1e3a6e;animation:_tbd 1.2s infinite; }
+.tdot:nth-child(2){animation-delay:.2s} .tdot:nth-child(3){animation-delay:.4s}
+@keyframes _tbd{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+
+/* follow-up chips */
+.tfu { margin-top:9px; display:flex; flex-wrap:wrap; gap:5px; }
+.tfc {
+  background:rgba(80,140,255,0.05); border:1px dashed rgba(80,140,255,0.22);
+  color:#5578a8; font-size:11px; padding:4px 10px; border-radius:20px;
+  cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif;
+  white-space:nowrap;
+}
+.tfc:hover { background:rgba(80,140,255,0.13); color:#80b0e0; border-color:rgba(80,140,255,0.4); }
+
+/* ── Hire bar ── */
+#_thirebar {
+  margin:0 14px 8px;
+  background:linear-gradient(135deg,rgba(20,40,90,.7),rgba(14,28,60,.7));
+  border:1px solid rgba(80,140,255,0.18);
+  border-radius:12px; padding:10px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0; gap:10px;
+}
+#_thirebar-txt { font-size:12px; color:#6a9de0; }
+#_thirebar-txt strong { color:#a0c4ff; display:block; font-size:13px; margin-bottom:1px; font-family:'Syne',sans-serif; }
+#_thirebar-btn {
+  background:linear-gradient(135deg,#1e3a6e,#3060c0);
+  color:#c8dcff; font-size:11.5px; font-weight:600; padding:7px 14px;
+  border-radius:9px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif;
+  white-space:nowrap; letter-spacing:.3px; flex-shrink:0;
+  transition:transform .2s, box-shadow .2s;
+}
+#_thirebar-btn:hover { transform:scale(1.04); box-shadow:0 4px 16px rgba(48,96,192,0.45); }
+
+/* ── Quick chips ── */
+#_tchips { padding:6px 14px 10px; display:flex; flex-wrap:wrap; gap:6px; flex-shrink:0; }
+.tc {
+  background:rgba(80,140,255,0.07); border:1px solid rgba(80,140,255,0.18);
+  color:#6a9de0; font-size:11.5px; padding:5px 12px; border-radius:20px;
+  cursor:pointer; transition:all .2s; font-family:'DM Sans',sans-serif;
+  font-weight:500; white-space:nowrap;
+}
+.tc:hover { background:rgba(80,140,255,0.16); border-color:rgba(80,140,255,0.4); color:#a0c4ff; transform:translateY(-1px); }
+
+/* ── Footer ── */
+#_tfoot { padding:10px 14px 13px; border-top:1px solid rgba(255,255,255,0.05); background:#08080f; flex-shrink:0; }
+#_trow  { display:flex; align-items:center; gap:8px; }
+#_tinp  {
+  flex:1; background:#0f1d35; border:1px solid rgba(80,140,255,0.15);
+  border-radius:13px; padding:10px 14px; font-size:13px; color:#dde6ff;
+  outline:none; resize:none; transition:border-color .2s, box-shadow .2s;
+  font-family:'DM Sans',sans-serif; max-height:100px; line-height:1.5;
+}
+#_tinp::placeholder { color:rgba(150,170,220,0.28); }
+#_tinp:focus { border-color:rgba(80,140,255,0.38); box-shadow:0 0 0 3px rgba(80,140,255,0.07); }
+#_tsend {
+  width:40px; height:40px; border-radius:12px; flex-shrink:0;
+  background:linear-gradient(135deg,#1e3a6e,#3060c0);
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:transform .2s, opacity .2s, box-shadow .2s; opacity:.4;
+}
+#_tsend.on { opacity:1; box-shadow:0 4px 16px rgba(48,96,192,0.4); }
+#_tsend:hover { transform:scale(1.06); }
+#_tbrand { text-align:center; font-size:10px; color:rgba(100,140,200,0.22); margin-top:8px; letter-spacing:.3px; }
+</style>
+
+<div id="_t">
+  <button id="_tfab" aria-label="Chat with Tanishq's AI">
+    <div id="_tpip"></div>
+    <svg class="ic" width="23" height="23" fill="none" stroke="#6aabff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <svg class="ix" width="20" height="20" fill="none" stroke="#6aabff" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+
+  <div id="_twin" role="dialog" aria-label="Tanishq's AI Assistant">
+    <div id="_thead">
+      <div id="_tav">TM</div>
+      <div>
+        <div id="_thname">Tanishq's Portfolio AI</div>
+        <div id="_thsub">Ask me anything · Powered by Claude</div>
+      </div>
+      <button id="_thclose" aria-label="Close">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Welcome card -->
+    <div id="_twelcome">
+      <div id="_twname">Tanishq Mishra</div>
+      <div id="_twrole">Product Manager · Technical Marketer</div>
+      <div id="_twbio">Based in San Francisco 🌉 — bridging product strategy, data, and dev. Ask about his work, skills, or how to hire him!</div>
+      <div id="_twtags">
+        <span class="tw-tag">📦 Product</span>
+        <span class="tw-tag">📊 Data & Analytics</span>
+        <span class="tw-tag">🚀 GTM Strategy</span>
+        <span class="tw-tag">💻 Dev</span>
+        <span class="tw-tag">🧪 A/B Testing</span>
+      </div>
+    </div>
+
+    <div id="_tmsgs"></div>
+
+    <!-- Hire Me Bar -->
+    <div id="_thirebar">
+      <div id="_thirebar-txt">
+        <strong>Open to opportunities</strong>
+        PM roles · consulting · freelance
+      </div>
+      <button id="_thirebar-btn">✉ Hire Me</button>
+    </div>
+
+    <!-- Quick chips -->
+    <div id="_tchips">
+      <button class="tc">👤 About</button>
+      <button class="tc">🚀 Projects</button>
+      <button class="tc">🛠 Skills</button>
+      <button class="tc">📬 Contact</button>
+      <button class="tc">💼 Experience</button>
+    </div>
+
+    <div id="_tfoot">
+      <div id="_trow">
+        <textarea id="_tinp" placeholder="Ask about Tanishq's work, projects, skills…" rows="1"></textarea>
+        <button id="_tsend" aria-label="Send">
+          <svg width="15" height="15" fill="none" stroke="#c8dcff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div id="_tbrand">AI by Claude · tanishqmishra.com</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+const API_KEY = "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";
+
+const SYSTEM = `You are Tanishq Mishra's personal AI assistant on his portfolio website. You are warm, sharp, and concise — like a knowledgeable friend who knows everything about Tanishq's work.
+
+ABOUT TANISHQ:
+- Name: Tanishq Mishra
+- Role: Product Manager & Technical Marketer
+- Location: San Francisco, CA
+- Email: Tanishq0630@gmail.com
+- Phone: (408) 890-8523
+- LinkedIn: https://www.linkedin.com/in/tanishqmishra/
+- GitHub: https://github.com/Tanishq0630
+- Bio: 5+ years bridging product strategy, data analysis, and engineering. Known for turning complex data into actionable roadmaps and driving measurable business growth.
+- Availability: Actively open to PM roles, consulting, and freelance projects.
+
+SKILLS:
+Product: GTM Strategy, Agile, RICE Prioritization, User Personas, Roadmapping, Retention/Churn Metrics
+Data: Tableau, R Studio, Qualtrics, A/B Testing, Statistical Analysis
+Tech: Android Dev, Web Dev, UI/UX Wireframing
+Marketing: Consumer Research, SWOT, Market Segmentation, Campaign Strategy
+
+PROJECTS:
+1. Money App — Led UX + engineering collaboration to build a digital payments wallet. GTM strategy drove 25% of total company revenue through the wallet and significantly cut transaction delays.
+2. Google Photos Engagement — Full PM case study: user personas, RICE-prioritized backlog, Agile roadmap, success/retention/churn metrics. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf
+3. Discord GTM Strategy — Proposed new features to diversify Discord's user base beyond gaming communities. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf
+4. Unilever SE Asia CMI — Presented consumer behavior research to Unilever's Southeast Asia CMI team; used Qualtrics, A/B tests, SWOT. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU
+5. Spotify Data Visualization — Tableau dashboard: Spotify global growth, demographics, market share, revenue. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1
+6. A/B Testing (Surf) — Ran split tests on print + digital KV campaigns to surface highest-impact variables. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI
+7. Denny's vs IHOP (R) — Customer segmentation via R + Qualtrics data: heatmaps, dendrograms, bar charts. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R
+
+RESPONSE STYLE:
+- 2–4 sentences max unless listing projects. Be conversational, not corporate.
+- For projects: name + one-line impact + link (use label like "View deck →" not raw URLs).
+- For contact/hire: give email + LinkedIn + be enthusiastic and encouraging.
+- Always end with a short, natural follow-up nudge (e.g. "Want to see the full deck?" or "Shall I tell you about another project?").
+- Use a touch of emoji for warmth. Never make up facts.`;
+
+// follow-up suggestions by topic
+const FU = {
+  project: ["What was the impact? →","Another project →","Tools used? →"],
+  skills:  ["See his projects →","Open to freelance? →","Best project? →"],
+  contact: ["View LinkedIn →","Best project →","What roles? →"],
+  about:   ["See projects →","Top skills? →","Available to hire? →"],
+  default: ["See projects →","His skills →","How to contact →"]
+};
+
+const fuQuestions = {
+  "What was the impact? →":    "What was the measurable business impact of that project?",
+  "Another project →":         "Tell me about another one of Tanishq's projects.",
+  "Tools used? →":             "What tools and technologies did Tanishq use for that?",
+  "See his projects →":        "What are Tanishq's best projects?",
+  "Open to freelance? →":      "Is Tanishq open to freelance or consulting work?",
+  "Best project? →":           "What is Tanishq's most impactful project?",
+  "View LinkedIn →":           "Share Tanishq's LinkedIn profile.",
+  "Best project →":            "What is Tanishq's best project?",
+  "What roles? →":             "What kind of roles is Tanishq looking for?",
+  "Top skills? →":             "What are Tanishq's strongest skills?",
+  "Available to hire? →":      "Is Tanishq currently available for new opportunities?",
+  "His skills →":              "What are Tanishq's key skills?",
+  "How to contact →":          "How can I contact or hire Tanishq?"
+};
+
+const fab      = document.getElementById('_tfab');
+const win      = document.getElementById('_twin');
+const closeBtn = document.getElementById('_thclose');
+const msgs     = document.getElementById('_tmsgs');
+const inp      = document.getElementById('_tinp');
+const sendBtn  = document.getElementById('_tsend');
+const chips    = document.querySelectorAll('.tc');
+const pip      = document.getElementById('_tpip');
+const hireBtn  = document.getElementById('_thirebar-btn');
+const welcome  = document.getElementById('_twelcome');
+const root     = document.getElementById('_t');
+
+let isOpen=false, busy=false, hist=[], tooltipEl=null;
+
+// Auto tooltip after 2s
+setTimeout(()=>{
+  if(!isOpen){
+    tooltipEl=document.createElement('div');
+    tooltipEl.id='_ttooltip';
+    tooltipEl.textContent='👋 Ask me about Tanishq!';
+    root.appendChild(tooltipEl);
+    setTimeout(()=>{
+      if(tooltipEl&&!isOpen){
+        tooltipEl.style.opacity='0';
+        tooltipEl.style.transition='opacity .5s';
+        setTimeout(()=>tooltipEl?.remove(),500);
+        tooltipEl=null;
+      }
+    },4000);
+  }
+},2200);
+
+function toggle(){
+  isOpen=!isOpen;
+  fab.classList.toggle('open',isOpen);
+  win.classList.toggle('open',isOpen);
+  if(isOpen){
+    pip.style.display='none';
+    if(tooltipEl){ tooltipEl.remove(); tooltipEl=null; }
+    setTimeout(()=>inp.focus(),380);
+  }
+}
+fab.addEventListener('click',toggle);
+closeBtn.addEventListener('click',toggle);
+hireBtn.addEventListener('click',()=>window.open('mailto:Tanishq0630@gmail.com?subject=Opportunity%20from%20Portfolio','_blank'));
+
+// Chip questions
+const chipMap={
+  '👤 About':      "Tell me about Tanishq — who is he and what does he do?",
+  '🚀 Projects':   "What are Tanishq's best projects?",
+  '🛠 Skills':     "What are Tanishq's key skills and tools?",
+  '📬 Contact':    "How can I contact or hire Tanishq?",
+  '💼 Experience': "What professional experience does Tanishq have?"
+};
+chips.forEach(c=>c.addEventListener('click',()=>{
+  hideWelcome();
+  go(chipMap[c.textContent.trim()]||c.textContent);
+}));
+
+inp.addEventListener('input',()=>{
+  inp.style.height='auto';
+  inp.style.height=Math.min(inp.scrollHeight,100)+'px';
+  sendBtn.classList.toggle('on',inp.value.trim().length>0);
+});
+inp.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submit();}
+});
+sendBtn.addEventListener('click',submit);
+
+function submit(){
+  const t=inp.value.trim();
+  if(!t||busy) return;
+  hideWelcome();
+  go(t);
+}
+
+function hideWelcome(){
+  if(welcome&&welcome.style.display!=='none'){
+    welcome.style.transition='opacity .25s';
+    welcome.style.opacity='0';
+    setTimeout(()=>{ welcome.style.display='none'; },250);
+  }
+}
+
+async function go(text){
+  if(busy) return;
+  busy=true;
+  userMsg(text);
+  inp.value=''; inp.style.height='auto'; sendBtn.classList.remove('on');
+  hist.push({role:'user',content:text});
+  typing(true);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':API_KEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:600,
+        system:SYSTEM,
+        messages:hist
+      })
+    });
+    const data=await res.json();
+    typing(false);
+    const reply=data?.content?.[0]?.text||"Sorry, something went wrong. Email Tanishq at Tanishq0630@gmail.com!";
+    hist.push({role:'assistant',content:reply});
+    botMsg(reply, detectTopic(text));
+  } catch(e){
+    typing(false);
+    botMsg("Connection hiccup! Reach Tanishq at Tanishq0630@gmail.com or (408) 890-8523 📧",'contact');
+  }
+  busy=false;
+}
+
+function detectTopic(t){
+  if(/project|built|made|work|portfolio|money|spotify|discord|unilever|google|denny|case/i.test(t)) return 'project';
+  if(/skill|tool|tech|tableau|r studio|know|use|familiar/i.test(t)) return 'skills';
+  if(/contact|hire|email|reach|touch|opportunity|available|job|freelance|role/i.test(t)) return 'contact';
+  if(/who|about|tanishq|background|bio|tell me|describe/i.test(t)) return 'about';
+  return 'default';
+}
+
+function userMsg(t){
+  const d=document.createElement('div');
+  d.className='tr user';
+  d.innerHTML=`<div class="tb">${esc(t)}</div>`;
+  msgs.appendChild(d); scroll();
+}
+
+function botMsg(t, topic='default'){
+  const d=document.createElement('div');
+  d.className='tr bot';
+  const fuArr=FU[topic]||FU.default;
+  const fuHtml=`<div class="tfu">${fuArr.map(f=>`<button class="tfc">${f}</button>`).join('')}</div>`;
+  d.innerHTML=`<div class="tm">TM</div><div class="tb">${render(t)}${fuHtml}</div>`;
+  msgs.appendChild(d);
+  d.querySelectorAll('.tfc').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const q=fuQuestions[btn.textContent]||btn.textContent.replace(' →','');
+      go(q);
+    });
+  });
+  scroll();
+}
+
+function render(t){
+  let s=esc(t);
+  s=s.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  // named links: [label](url)
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // bare URLs — replace with short label
+  s=s.replace(/(https?:\/\/[^\s<"]+)/g,(url)=>{
+    let label='View link →';
+    if(url.includes('slideshare')) label='View deck →';
+    else if(url.includes('tableau')) label='View dashboard →';
+    else if(url.includes('github')) label='View on GitHub →';
+    else if(url.includes('drive.google')) label='View on Drive →';
+    else if(url.includes('linkedin')) label='LinkedIn →';
+    return `<a href="${url}" target="_blank" rel="noopener">${label}</a>`;
+  });
+  s=s.replace(/([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/g,'<a href="mailto:$1">$1</a>');
+  s=s.replace(/\n/g,'<br>');
+  return s;
+}
+
+function typing(show){
+  const ex=document.getElementById('_ttyping');
+  if(show&&!ex){
+    const d=document.createElement('div');
+    d.id='_ttyping'; d.className='tr bot';
+    d.innerHTML=`<div class="tm">TM</div><div class="tb tdots"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span></div>`;
+    msgs.appendChild(d); scroll();
+  } else if(!show&&ex) ex.remove();
+}
+
+function scroll(){ msgs.scrollTop=msgs.scrollHeight; }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+})();
+</script>
+</body>
+</html>
