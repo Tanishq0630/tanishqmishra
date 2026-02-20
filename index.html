@@ -752,8 +752,8 @@
 
 <script>
 (function(){
-  // ⚠️ PASTE YOUR API KEY HERE
-  var K = "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";
+  // ⚠️ Get a FREE Gemini key at: https://aistudio.google.com/app/apikey
+  var K = "AIzaSyBGInhE1caS3-jdmEfFSO4aWGCtT0FLUR8";
 
   var SYS = "You are Tanishq Mishra's personal AI assistant on his portfolio website. Be warm, helpful and concise.\n\nABOUT TANISHQ:\n- Name: Tanishq Mishra\n- Role: Product Manager & Technical Marketer\n- Location: San Francisco, CA\n- Email: Tanishq0630@gmail.com\n- Phone: (408) 890-8523\n- LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n- GitHub: https://github.com/Tanishq0630\n- Status: Open to PM roles, consulting, freelance.\n\nSKILLS: GTM Strategy, Agile, RICE Prioritization, User Personas, Tableau, R Studio, Qualtrics, A/B Testing, Android Dev, Web Dev, UX/UI, SWOT Analysis.\n\nPROJECTS:\n1. Money App - Digital payments wallet; GTM drove 25% of company revenue.\n2. Google Photos Engagement - RICE backlog + Agile roadmap. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n3. Discord GTM - Diversify beyond gaming. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n4. Unilever SE Asia CMI - Consumer research. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n5. Spotify Tableau Dashboard - Global growth viz. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n6. A/B Testing (Surf) - Print + digital KV campaigns. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n7. Denny's vs IHOP (R) - Customer segmentation. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\nRULES: Keep replies 2-4 sentences unless listing projects. For contact give email + LinkedIn. End with a natural follow-up question. Never make up facts.";
 
@@ -843,15 +843,25 @@
       busy=false; return;
     }
 
-    fetch('https://api.anthropic.com/v1/messages',{
+    // Build conversation for Gemini
+    var geminiMsgs = [{role:'user', parts:[{text: SYS + '\n\nNow answer this: ' + hist[0].content}]}];
+    if(hist.length > 1){
+      geminiMsgs = [];
+      // First message includes system prompt
+      for(var i=0; i<hist.length; i++){
+        var role = hist[i].role === 'assistant' ? 'model' : 'user';
+        var msgText = (i===0) ? SYS + '\n\nUser: ' + hist[i].content : hist[i].content;
+        geminiMsgs.push({role: role, parts:[{text: msgText}]});
+      }
+    }
+
+    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+K,{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':K,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:SYS,messages:hist})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents: geminiMsgs,
+        generationConfig:{maxOutputTokens:600,temperature:0.7}
+      })
     })
     .then(function(r){
       if(!r.ok){ throw new Error('HTTP '+r.status); }
@@ -859,9 +869,9 @@
     })
     .then(function(d){
       dots(false);
-      var reply=(d.content&&d.content[0]&&d.content[0].text)
-        ? d.content[0].text
-        : "Hmm, I didn't get a response. Email Tanishq at Tanishq0630@gmail.com!";
+      var reply = (d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0])
+        ? d.candidates[0].content.parts[0].text
+        : "Hmm, no response. Email Tanishq at Tanishq0630@gmail.com!";
       hist.push({role:'assistant',content:reply});
       bMsg(reply, topic(text));
     })
