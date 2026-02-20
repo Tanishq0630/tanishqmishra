@@ -752,8 +752,8 @@
 
 <script>
 (function(){
-  // ⚠️ Get a FREE Gemini key at: https://aistudio.google.com/app/apikey
-  var K = "AIzaSyBGInhE1caS3-jdmEfFSO4aWGCtT0FLUR8";
+  // ⚠️ Paste your Cloudflare Worker URL here (e.g. https://your-worker.workers.dev)
+  var WORKER_URL = "rough-dream-bffe.tanishq0630.workers.dev";
 
   var SYS = "You are Tanishq Mishra's personal AI assistant on his portfolio website. Be warm, helpful and concise.\n\nABOUT TANISHQ:\n- Name: Tanishq Mishra\n- Role: Product Manager & Technical Marketer\n- Location: San Francisco, CA\n- Email: Tanishq0630@gmail.com\n- Phone: (408) 890-8523\n- LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n- GitHub: https://github.com/Tanishq0630\n- Status: Open to PM roles, consulting, freelance.\n\nSKILLS: GTM Strategy, Agile, RICE Prioritization, User Personas, Tableau, R Studio, Qualtrics, A/B Testing, Android Dev, Web Dev, UX/UI, SWOT Analysis.\n\nPROJECTS:\n1. Money App - Digital payments wallet; GTM drove 25% of company revenue.\n2. Google Photos Engagement - RICE backlog + Agile roadmap. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n3. Discord GTM - Diversify beyond gaming. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n4. Unilever SE Asia CMI - Consumer research. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n5. Spotify Tableau Dashboard - Global growth viz. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n6. A/B Testing (Surf) - Print + digital KV campaigns. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n7. Denny's vs IHOP (R) - Customer segmentation. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\nRULES: Keep replies 2-4 sentences unless listing projects. For contact give email + LinkedIn. End with a natural follow-up question. Never make up facts.";
 
@@ -837,30 +837,33 @@
     hist.push({role:'user',content:text});
     dots(true);
 
-    if(!K||K==='YOUR_NEW_API_KEY_HERE'){
+    if(!WORKER_URL||WORKER_URL==='YOUR_WORKER_URL_HERE'){
       dots(false);
       bMsg("⚠️ Please add your Anthropic API key. Open index.html in VS Code, search for YOUR_NEW_API_KEY_HERE and replace it.",'default');
       busy=false; return;
     }
 
-    // Build conversation for Gemini
-    var geminiMsgs = [{role:'user', parts:[{text: SYS + '\n\nNow answer this: ' + hist[0].content}]}];
-    if(hist.length > 1){
-      geminiMsgs = [];
-      // First message includes system prompt
-      for(var i=0; i<hist.length; i++){
-        var role = hist[i].role === 'assistant' ? 'model' : 'user';
-        var msgText = (i===0) ? SYS + '\n\nUser: ' + hist[i].content : hist[i].content;
-        geminiMsgs.push({role: role, parts:[{text: msgText}]});
-      }
+    if(!WORKER_URL || WORKER_URL === 'YOUR_WORKER_URL_HERE'){
+      dots(false);
+      bMsg("⚠️ Worker URL not set yet. Follow the setup steps!",'default');
+      busy=false; return;
     }
 
-    fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+K,{
+    // Build Gemini conversation history
+    var geminiMsgs = [];
+    for(var i=0; i<hist.length; i++){
+      var role = hist[i].role === 'assistant' ? 'model' : 'user';
+      var msgText = (i===0) ? SYS + '\n\nUser question: ' + hist[i].content : hist[i].content;
+      geminiMsgs.push({role: role, parts:[{text: msgText}]});
+    }
+
+    // Call Cloudflare Worker (key stays hidden!)
+    fetch(WORKER_URL, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         contents: geminiMsgs,
-        generationConfig:{maxOutputTokens:600,temperature:0.7}
+        generationConfig:{maxOutputTokens:600, temperature:0.7}
       })
     })
     .then(function(r){
@@ -878,7 +881,7 @@
     .catch(function(e){
       dots(false);
       console.error('Chatbot error:',e);
-      bMsg("Connection issue ("+e.message+"). Email Tanishq at Tanishq0630@gmail.com or call (408) 890-8523.",'contact');
+      bMsg("Connection issue ("+e.message+"). Reach Tanishq at Tanishq0630@gmail.com.",'contact');
     })
     .finally(function(){busy=false;});
   }
