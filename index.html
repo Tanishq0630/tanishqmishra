@@ -12,7 +12,6 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<script src="tanishq-chatbot.html"></script>
 	<body class="is-preload">
 
 		<!-- Wrapper -->
@@ -397,7 +396,7 @@
 							<section class="alt">
 								<h2>Let's Get in Touch</h2>
 								<h3>Email</h3>
-								<p><a href="mailto:Tanishq0630@gmail.com">Tanishq0630@gmail.com</a></p>
+								<p><a href="/cdn-cgi/l/email-protection#b9edd8d7d0cad1c8898f8a89f9ded4d8d0d597dad6d4"><span class="__cf_email__" data-cfemail="92c6f3fcfbe1fae3a2a4a1a2d2f5fff3fbfebcf1fdff">[email&#160;protected]</span></a></p>
 							</section>
 							<section>
 								<h3>Phone</h3>
@@ -420,21 +419,461 @@
 
 				<!-- Copyright -->
 					<div id="copyright">
-						<ul><li>&copy; Tanishq </li><li><a href="mailto:Tanishq0630@gmail.com">Tanishq0630@gmail.com</a></li></ul>
+						<ul><li>&copy; Tanishq </li><li><a href="/cdn-cgi/l/email-protection#9acefbf4f3e9f2ebaaaca9aadafdf7fbf3f6b4f9f5f7"><span class="__cf_email__" data-cfemail="b3e7d2dddac0dbc283858083f3d4ded2dadf9dd0dcde">[email&#160;protected]</span></a></li></ul>
 					</div>
 
 			</div>
 
+
+		<!-- ===================== TANISHQ CHATBOT (Copilot Style) ===================== -->
+		<!-- ⚠️ Replace YOUR_NEW_API_KEY below with a fresh key from console.anthropic.com -->
+		<style>
+		#tchat-fab {
+		  position:fixed; bottom:28px; right:28px; z-index:9998;
+		  width:56px; height:56px; border-radius:50%;
+		  background:linear-gradient(135deg,#0078d4,#005a9e);
+		  border:none; cursor:pointer;
+		  display:flex; align-items:center; justify-content:center;
+		  box-shadow:0 4px 20px rgba(0,120,212,0.5);
+		  transition:transform .25s ease, box-shadow .25s ease;
+		}
+		#tchat-fab:hover { transform:scale(1.1); box-shadow:0 6px 28px rgba(0,120,212,0.7); }
+		#tchat-fab svg { transition:transform .3s ease, opacity .3s ease; position:absolute; }
+		#tchat-fab .fi { opacity:1; transform:scale(1); }
+		#tchat-fab .fx { opacity:0; transform:scale(0) rotate(-90deg); }
+		#tchat-fab.open .fi { opacity:0; transform:scale(0) rotate(90deg); }
+		#tchat-fab.open .fx { opacity:1; transform:scale(1) rotate(0); }
+		#tchat-pip {
+		  position:absolute; top:2px; right:2px; width:13px; height:13px;
+		  border-radius:50%; background:#22c55e; border:2px solid #005a9e;
+		}
+
+		#tchat-win {
+		  position:fixed; bottom:96px; right:28px; z-index:9999;
+		  width:380px; max-width:calc(100vw - 40px);
+		  height:560px; max-height:calc(100vh - 110px);
+		  background:#ffffff; border-radius:16px;
+		  box-shadow:0 8px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+		  display:flex; flex-direction:column; overflow:hidden;
+		  transform-origin:bottom right;
+		  transform:scale(0.9) translateY(16px); opacity:0; pointer-events:none;
+		  transition:transform .3s cubic-bezier(.34,1.3,.64,1), opacity .2s ease;
+		  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+		}
+		#tchat-win.open { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+
+		#tchat-head {
+		  background:linear-gradient(135deg,#0078d4,#005a9e);
+		  padding:14px 16px; display:flex; align-items:center; gap:10px; flex-shrink:0;
+		}
+		#tchat-av {
+		  width:36px; height:36px; border-radius:50%;
+		  background:rgba(255,255,255,0.2);
+		  display:flex; align-items:center; justify-content:center;
+		  font-weight:700; font-size:13px; color:#fff; flex-shrink:0;
+		  border:1.5px solid rgba(255,255,255,0.35);
+		}
+		#tchat-hname { font-size:14px; font-weight:600; color:#fff; }
+		#tchat-hsub { font-size:11px; color:rgba(255,255,255,0.75); margin-top:1px; display:flex; align-items:center; gap:5px; }
+		#tchat-hsub::before { content:''; width:7px; height:7px; border-radius:50%; background:#4ade80; flex-shrink:0; }
+		#tchat-hclose {
+		  margin-left:auto; background:rgba(255,255,255,0.15); border:none; cursor:pointer;
+		  width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+		  transition:background .2s; color:#fff;
+		}
+		#tchat-hclose:hover { background:rgba(255,255,255,0.3); }
+
+		#tchat-msgs {
+		  flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px;
+		  scroll-behavior:smooth; background:#f8f9fb;
+		}
+		#tchat-msgs::-webkit-scrollbar { width:4px; }
+		#tchat-msgs::-webkit-scrollbar-thumb { background:#d0d5dd; border-radius:10px; }
+
+		.tc-row { display:flex; gap:8px; align-items:flex-start; animation:tc-in .2s ease; }
+		@keyframes tc-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+		.tc-row.user { flex-direction:row-reverse; }
+		.tc-bub {
+		  max-width:80%; padding:10px 14px; border-radius:14px;
+		  font-size:13.5px; line-height:1.6; color:#1a1a2e;
+		}
+		.tc-row.bot  .tc-bub { background:#fff; border:1px solid #e5e7eb; border-bottom-left-radius:4px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+		.tc-row.user .tc-bub { background:linear-gradient(135deg,#0078d4,#005a9e); color:#fff; border-bottom-right-radius:4px; }
+		.tc-bub a { color:#0078d4; }
+		.tc-bub strong { color:#1a1a2e; font-weight:600; }
+		.tc-row.user .tc-bub strong { color:#fff; }
+		.tc-mini {
+		  width:28px; height:28px; border-radius:50%; flex-shrink:0; margin-top:2px;
+		  background:linear-gradient(135deg,#0078d4,#005a9e);
+		  display:flex; align-items:center; justify-content:center;
+		  font-weight:700; font-size:10px; color:#fff;
+		}
+
+		/* Typing dots */
+		.tc-dots { display:flex; gap:4px; padding:10px 14px; align-items:center; }
+		.tc-dot { width:7px; height:7px; border-radius:50%; background:#c0c8d8; animation:tc-b 1.2s infinite; }
+		.tc-dot:nth-child(2){animation-delay:.2s} .tc-dot:nth-child(3){animation-delay:.4s}
+		@keyframes tc-b{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+		/* Welcome banner */
+		#tchat-welcome {
+		  margin:14px; background:linear-gradient(135deg,#eff6ff,#dbeafe);
+		  border:1px solid #bfdbfe; border-radius:12px; padding:14px 16px;
+		  flex-shrink:0;
+		}
+		#tchat-wname { font-size:16px; font-weight:700; color:#1e3a5f; margin-bottom:2px; }
+		#tchat-wrole { font-size:11px; color:#3b82f6; font-weight:600; text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; }
+		#tchat-wbio  { font-size:12.5px; color:#4a6080; line-height:1.55; margin-bottom:10px; }
+		.tc-wtag {
+		  display:inline-block; background:#fff; border:1px solid #bfdbfe;
+		  color:#2563eb; font-size:11px; padding:3px 9px; border-radius:20px;
+		  margin:2px; font-weight:500;
+		}
+
+		/* Quick chips */
+		#tchat-chips { padding:10px 14px; display:flex; flex-wrap:wrap; gap:7px; flex-shrink:0; background:#fff; border-top:1px solid #f0f0f0; }
+		.tc-chip {
+		  background:#f0f7ff; border:1.5px solid #bfdbfe;
+		  color:#0078d4; font-size:12px; font-weight:500; padding:6px 13px; border-radius:20px;
+		  cursor:pointer; transition:all .2s; white-space:nowrap;
+		  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+		}
+		.tc-chip:hover { background:#0078d4; color:#fff; border-color:#0078d4; transform:translateY(-1px); }
+
+		/* Follow-up chips */
+		.tc-fu { margin-top:10px; display:flex; flex-wrap:wrap; gap:5px; }
+		.tc-fc {
+		  background:#f0f7ff; border:1px solid #bfdbfe;
+		  color:#0078d4; font-size:11px; padding:4px 11px; border-radius:20px;
+		  cursor:pointer; transition:all .2s; white-space:nowrap;
+		  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+		}
+		.tc-fc:hover { background:#0078d4; color:#fff; border-color:#0078d4; }
+
+		/* Hire bar */
+		#tchat-hire {
+		  margin:0 14px 10px; background:linear-gradient(135deg,#eff6ff,#dbeafe);
+		  border:1.5px solid #93c5fd; border-radius:12px; padding:10px 14px;
+		  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0;
+		}
+		#tchat-hire-txt { font-size:12px; color:#3b5a8a; }
+		#tchat-hire-txt strong { display:block; font-size:13px; color:#1e3a5f; margin-bottom:1px; }
+		#tchat-hire-btn {
+		  background:linear-gradient(135deg,#0078d4,#005a9e); color:#fff;
+		  border:none; border-radius:8px; padding:7px 14px; font-size:12px;
+		  font-weight:600; cursor:pointer; white-space:nowrap; flex-shrink:0;
+		  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+		  transition:transform .2s, box-shadow .2s;
+		}
+		#tchat-hire-btn:hover { transform:scale(1.04); box-shadow:0 4px 14px rgba(0,120,212,0.4); }
+
+		/* Footer input */
+		#tchat-foot { padding:10px 14px 13px; background:#fff; border-top:1px solid #f0f0f0; flex-shrink:0; }
+		#tchat-inputrow { display:flex; align-items:center; gap:8px; }
+		#tchat-inp {
+		  flex:1; background:#f3f4f6; border:1.5px solid #e5e7eb; border-radius:12px;
+		  padding:10px 14px; font-size:13px; color:#1a1a2e; outline:none; resize:none;
+		  transition:border-color .2s; max-height:100px; line-height:1.5;
+		  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+		}
+		#tchat-inp::placeholder { color:#9ca3af; }
+		#tchat-inp:focus { border-color:#0078d4; background:#fff; }
+		#tchat-send {
+		  width:38px; height:38px; border-radius:10px; flex-shrink:0;
+		  background:#0078d4; border:none; cursor:pointer;
+		  display:flex; align-items:center; justify-content:center;
+		  transition:opacity .2s, transform .2s; opacity:.4;
+		}
+		#tchat-send.on { opacity:1; }
+		#tchat-send:hover { transform:scale(1.06); }
+		#tchat-brand { text-align:center; font-size:10px; color:#9ca3af; margin-top:7px; letter-spacing:.2px; }
+		</style>
+
+		<div id="tchat-root">
+		  <!-- FAB button -->
+		  <button id="tchat-fab" aria-label="Chat with Tanishq's AI">
+		    <div id="tchat-pip"></div>
+		    <svg class="fi" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+		      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+		    </svg>
+		    <svg class="fx" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+		      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+		    </svg>
+		  </button>
+
+		  <!-- Chat window -->
+		  <div id="tchat-win" role="dialog" aria-label="Tanishq's AI Assistant">
+		    <!-- Header -->
+		    <div id="tchat-head">
+		      <div id="tchat-av">TM</div>
+		      <div>
+		        <div id="tchat-hname">Tanishq's Portfolio AI</div>
+		        <div id="tchat-hsub">Online · Ask me anything</div>
+		      </div>
+		      <button id="tchat-hclose" aria-label="Close chat">
+		        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24">
+		          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+		        </svg>
+		      </button>
+		    </div>
+
+		    <!-- Welcome card -->
+		    <div id="tchat-welcome">
+		      <div id="tchat-wname">Tanishq Mishra 👋</div>
+		      <div id="tchat-wrole">Product Manager · Technical Marketer · SF</div>
+		      <div id="tchat-wbio">Ask me anything about Tanishq's projects, skills, experience, or how to hire him!</div>
+		      <div>
+		        <span class="tc-wtag">📦 Product</span>
+		        <span class="tc-wtag">📊 Data</span>
+		        <span class="tc-wtag">🚀 GTM</span>
+		        <span class="tc-wtag">💻 Dev</span>
+		        <span class="tc-wtag">🧪 A/B</span>
+		      </div>
+		    </div>
+
+		    <!-- Messages -->
+		    <div id="tchat-msgs"></div>
+
+		    <!-- Hire me bar -->
+		    <div id="tchat-hire">
+		      <div id="tchat-hire-txt">
+		        <strong>Open to opportunities</strong>
+		        PM roles · consulting · freelance
+		      </div>
+		      <button id="tchat-hire-btn">✉ Hire Me</button>
+		    </div>
+
+		    <!-- Quick chips -->
+		    <div id="tchat-chips">
+		      <button class="tc-chip">👤 About</button>
+		      <button class="tc-chip">🚀 Projects</button>
+		      <button class="tc-chip">🛠 Skills</button>
+		      <button class="tc-chip">📬 Contact</button>
+		      <button class="tc-chip">💼 Experience</button>
+		    </div>
+
+		    <!-- Footer -->
+		    <div id="tchat-foot">
+		      <div id="tchat-inputrow">
+		        <textarea id="tchat-inp" placeholder="Ask about Tanishq's work, skills, projects…" rows="1"></textarea>
+		        <button id="tchat-send" aria-label="Send">
+		          <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+		            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+		          </svg>
+		        </button>
+		      </div>
+		      <div id="tchat-brand">Powered by Claude AI · tanishqmishra.com</div>
+		    </div>
+		  </div>
+		</div>
+
+		<script>
+		(function(){
+		  // ⚠️ PASTE YOUR NEW API KEY HERE (get from console.anthropic.com)
+		  var API_KEY = "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";
+
+		  var SYSTEM = "You are Tanishq Mishra's personal AI assistant on his portfolio website. Be warm, helpful and concise like a knowledgeable friend.\n\nABOUT TANISHQ:\n- Name: Tanishq Mishra\n- Role: Product Manager & Technical Marketer\n- Location: San Francisco, CA\n- Email: Tanishq0630@gmail.com\n- Phone: (408) 890-8523\n- LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n- GitHub: https://github.com/Tanishq0630\n- Bio: 5+ years bridging product strategy, data analysis, and engineering. Known for turning complex data into actionable roadmaps.\n- Status: Open to PM roles, consulting, and freelance.\n\nSKILLS: GTM Strategy, Agile, RICE Prioritization, User Personas, Roadmapping, Retention/Churn Metrics, Tableau, R Studio, Qualtrics, A/B Testing, Android Dev, Web Dev, UI/UX Wireframing, Consumer Research, SWOT Analysis.\n\nPROJECTS:\n1. Money App - Led UX + GTM for a digital payments wallet. Result: 25% of company revenue through the wallet, reduced delays. \n2. Google Photos Engagement - User personas, RICE backlog, Agile roadmap with success metrics. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n3. Discord GTM Strategy - Proposed features to grow Discord beyond gaming. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n4. Unilever SE Asia CMI - Consumer research for Unilever SE Asia CMI team via Qualtrics + A/B tests. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n5. Spotify Data Viz - Tableau dashboard on Spotify global growth. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n6. A/B Testing (Surf) - Split tested print + digital KV campaigns. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n7. Denny vs IHOP (R) - Customer segmentation via R + Qualtrics. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\nRULES:\n- Keep replies to 2-4 sentences unless listing projects.\n- For projects: name + one-line impact + link labeled nicely (e.g. 'View deck').\n- For contact: give email AND LinkedIn link.\n- Always end with a short natural follow-up question.\n- Never make up facts.";
+
+		  var FU = {
+		    project: ["What was the impact?","Another project","Tools used?"],
+		    skills:  ["See projects","Open to freelance?","Best project?"],
+		    contact: ["View LinkedIn","Best project","What roles?"],
+		    about:   ["See projects","Top skills","Available to hire?"],
+		    default: ["See projects","His skills","How to contact"]
+		  };
+		  var fuQ = {
+		    "What was the impact?":"What was the measurable business impact of that project?",
+		    "Another project":"Tell me about another one of Tanishq's projects.",
+		    "Tools used?":"What tools did Tanishq use for that project?",
+		    "See projects":"What are Tanishq's best projects?",
+		    "Open to freelance?":"Is Tanishq open to freelance or consulting work?",
+		    "Best project?":"What is Tanishq's most impactful project?",
+		    "View LinkedIn":"What is Tanishq's LinkedIn profile?",
+		    "Best project":"What is Tanishq's best project?",
+		    "What roles?":"What kind of roles is Tanishq looking for?",
+		    "Top skills":"What are Tanishq's strongest skills?",
+		    "Available to hire?":"Is Tanishq available for new opportunities?",
+		    "His skills":"What are Tanishq's key skills?",
+		    "How to contact":"How can I contact or hire Tanishq?"
+		  };
+
+		  var fab      = document.getElementById('tchat-fab');
+		  var win      = document.getElementById('tchat-win');
+		  var closeBtn = document.getElementById('tchat-hclose');
+		  var msgs     = document.getElementById('tchat-msgs');
+		  var inp      = document.getElementById('tchat-inp');
+		  var sendBtn  = document.getElementById('tchat-send');
+		  var chips    = document.querySelectorAll('.tc-chip');
+		  var pip      = document.getElementById('tchat-pip');
+		  var hireBtn  = document.getElementById('tchat-hire-btn');
+		  var welcome  = document.getElementById('tchat-welcome');
+
+		  var isOpen = false, busy = false, hist = [];
+
+		  function toggle() {
+		    isOpen = !isOpen;
+		    fab.classList.toggle('open', isOpen);
+		    win.classList.toggle('open', isOpen);
+		    if (isOpen) {
+		      pip.style.display = 'none';
+		      setTimeout(function(){ inp.focus(); }, 350);
+		    }
+		  }
+		  fab.addEventListener('click', toggle);
+		  closeBtn.addEventListener('click', toggle);
+		  hireBtn.addEventListener('click', function(){
+		    window.open('mailto:Tanishq0630@gmail.com?subject=Opportunity%20from%20Portfolio','_blank');
+		  });
+
+		  var chipMap = {
+		    '👤 About': "Tell me about Tanishq — who is he and what does he do?",
+		    '🚀 Projects': "What are Tanishq's best projects?",
+		    '🛠 Skills': "What are Tanishq's key skills and tools?",
+		    '📬 Contact': "How can I contact or hire Tanishq?",
+		    '💼 Experience': "What professional experience does Tanishq have?"
+		  };
+		  chips.forEach(function(c){
+		    c.addEventListener('click', function(){
+		      hideWelcome();
+		      go(chipMap[c.textContent.trim()] || c.textContent);
+		    });
+		  });
+
+		  inp.addEventListener('input', function(){
+		    inp.style.height = 'auto';
+		    inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
+		    sendBtn.classList.toggle('on', inp.value.trim().length > 0);
+		  });
+		  inp.addEventListener('keydown', function(e){
+		    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submit(); }
+		  });
+		  sendBtn.addEventListener('click', submit);
+
+		  function submit() {
+		    var t = inp.value.trim();
+		    if (!t || busy) return;
+		    hideWelcome();
+		    go(t);
+		  }
+
+		  function hideWelcome() {
+		    if (welcome && welcome.style.display !== 'none') {
+		      welcome.style.opacity = '0';
+		      welcome.style.transition = 'opacity .2s';
+		      setTimeout(function(){ welcome.style.display = 'none'; }, 200);
+		    }
+		  }
+
+		  function go(text) {
+		    if (busy) return;
+		    busy = true;
+		    userMsg(text);
+		    inp.value = ''; inp.style.height = 'auto'; sendBtn.classList.remove('on');
+		    hist.push({ role: 'user', content: text });
+		    typing(true);
+
+		    if (!API_KEY || API_KEY === 'YOUR_NEW_API_KEY_HERE') {
+		      typing(false);
+		      botMsg("⚠️ API key not set. Please add your key from console.anthropic.com to the chatbot script.", 'default');
+		      busy = false; return;
+		    }
+
+		    fetch('https://api.anthropic.com/v1/messages', {
+		      method: 'POST',
+		      headers: {
+		        'Content-Type': 'application/json',
+		        'x-api-key': API_KEY,
+		        'anthropic-version': '2023-06-01',
+		        'anthropic-dangerous-direct-browser-access': 'true'
+		      },
+		      body: JSON.stringify({
+		        model: 'claude-sonnet-4-6',
+		        max_tokens: 600,
+		        system: SYSTEM,
+		        messages: hist
+		      })
+		    })
+		    .then(function(res){ return res.json(); })
+		    .then(function(data){
+		      typing(false);
+		      var reply = (data.content && data.content[0] && data.content[0].text)
+		        ? data.content[0].text
+		        : "I had trouble responding. You can email Tanishq directly at Tanishq0630@gmail.com!";
+		      hist.push({ role: 'assistant', content: reply });
+		      botMsg(reply, detectTopic(text));
+		    })
+		    .catch(function(){
+		      typing(false);
+		      botMsg("Connection issue! You can reach Tanishq at Tanishq0630@gmail.com or (408) 890-8523.", 'contact');
+		    })
+		    .finally(function(){ busy = false; });
+		  }
+
+		  function detectTopic(t) {
+		    if (/project|built|made|work|money|spotify|discord|unilever|google|denny|case/i.test(t)) return 'project';
+		    if (/skill|tool|tech|tableau|r studio|know|use|familiar/i.test(t)) return 'skills';
+		    if (/contact|hire|email|reach|touch|opportunity|available|job|freelance|role/i.test(t)) return 'contact';
+		    if (/who|about|tanishq|background|bio|tell me|describe/i.test(t)) return 'about';
+		    return 'default';
+		  }
+
+		  function userMsg(t) {
+		    var d = document.createElement('div');
+		    d.className = 'tc-row user';
+		    d.innerHTML = '<div class="tc-bub">' + esc(t) + '</div>';
+		    msgs.appendChild(d); scroll();
+		  }
+
+		  function botMsg(t, topic) {
+		    topic = topic || 'default';
+		    var d = document.createElement('div');
+		    d.className = 'tc-row bot';
+		    var fuArr = FU[topic] || FU.default;
+		    var fuHtml = '<div class="tc-fu">' + fuArr.map(function(f){ return '<button class="tc-fc">' + f + '</button>'; }).join('') + '</div>';
+		    d.innerHTML = '<div class="tc-mini">TM</div><div class="tc-bub">' + render(t) + fuHtml + '</div>';
+		    msgs.appendChild(d);
+		    d.querySelectorAll('.tc-fc').forEach(function(btn){
+		      btn.addEventListener('click', function(){
+		        var q = fuQ[btn.textContent] || btn.textContent;
+		        hideWelcome(); go(q);
+		      });
+		    });
+		    scroll();
+		  }
+
+		  function render(t) {
+		    var s = esc(t);
+		    s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+		    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+		    s = s.replace(/(https?:\/\/[^\s<"]+)/g, function(url){
+		      var label = 'View link';
+		      if (url.includes('slideshare')) label = 'View deck';
+		      else if (url.includes('tableau')) label = 'View dashboard';
+		      else if (url.includes('github')) label = 'GitHub';
+		      else if (url.includes('drive.google')) label = 'Google Drive';
+		      else if (url.includes('linkedin')) label = 'LinkedIn';
+		      return '<a href="' + url + '" target="_blank" rel="noopener">' + label + ' →</a>';
+		    });
+		    s = s.replace(/([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');
+		    s = s.replace(/\n/g, '<br>');
+		    return s;
+		  }
+
+		  function typing(show) {
+		    var ex = document.getElementById('tchat-typing');
+		    if (show && !ex) {
+		      var d = document.createElement('div');
+		      d.id = 'tchat-typing'; d.className = 'tc-row bot';
+		      d.innerHTML = '<div class="tc-mini">TM</div><div class="tc-bub tc-dots"><span class="tc-dot"></span><span class="tc-dot"></span><span class="tc-dot"></span></div>';
+		      msgs.appendChild(d); scroll();
+		    } else if (!show && ex) { ex.remove(); }
+		  }
+
+		  function scroll() { msgs.scrollTop = msgs.scrollHeight; }
+		  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+		})();
+		</script>
+		<!-- =================== END CHATBOT =================== -->
+
 		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
-
-	</body>
-</html>
-
-
+			<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src
