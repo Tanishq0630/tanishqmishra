@@ -1,9 +1,4 @@
 <!DOCTYPE HTML>
-<!--
-  Tanishq's Portfolio by HTML5 UP
-  html5up.net | @ajlkn
-  Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
   <head>
     <title>Tanishq Mishra</title>
@@ -94,7 +89,7 @@
             </header>
             <a href="https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU" class="image fit"><img src="images/Unilever.gif" alt="" /></a>
             <p>
-              Presented and worked with Unilever South East Asia CMI, executing market and consumer behavior research using Qualtrics, analyzing A/B test results, and delivering a SWOT based recommendation.
+              Presented and worked with Unilever South East Asia CMI, executing market and consumer behavior research using Qualtrics, analyzing A B test results, and delivering a SWOT based recommendation.
             </p>
             <ul class="actions special">
               <li><a href="https://drive.google.com/drive/folders/1nUCmtvDZFtdnOjSRG8E_t6DNtfwz_Ldv" class="button">Presentations</a></li>
@@ -118,14 +113,14 @@
           <article>
             <header>
               <span class="date">June 14, 2021</span>
-              <h2><a href="https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI">Experimental Design<br />A/B Testing</a></h2>
+              <h2><a href="https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI">Experimental Design<br />A B Testing</a></h2>
             </header>
             <a href="https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI" class="image fit"><img src="images/AB Testing.gif" alt="" /></a>
             <p>
-              Performed A/B testing on Surf creative for print and digital, identifying which variables drove the most traffic and clicks.
+              Performed A B testing on Surf creative for print and digital, identifying which variables drove the most traffic and clicks.
             </p>
             <ul class="actions special">
-              <li><a href="https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI" class="button">A/B Projects</a></li>
+              <li><a href="https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI" class="button">A B Projects</a></li>
             </ul>
           </article>
 
@@ -392,44 +387,52 @@
         color: #fff !important;
       }
 
-      /* Removed banner entirely */
-      #tchat-hire { display: none !important; }
-
-      /* Smaller quick actions, full fit */
-      #tchat-chips {
-        padding: 8px 10px 10px !important;
-        display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 8px !important;
-        background: #fff !important;
-        border-top: 1px solid #f1f5f9 !important;
-        flex-shrink: 0 !important;
-      }
-      #tchat-root .tc-chip {
-        width: 100% !important;
-        background: #eff6ff !important;
-        border: 1.5px solid #93c5fd !important;
-        color: #0078d4 !important;
-        font-size: 11.5px !important;
-        font-weight: 700 !important;
-        padding: 9px 10px !important;
-        border-radius: 14px !important;
-        cursor: pointer !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 6px !important;
-      }
-
       #tchat-foot {
         padding: 10px !important;
         background: #fff !important;
         border-top: 1px solid #f1f5f9 !important;
         flex-shrink: 0 !important;
       }
+
+      #tchat-hire{
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 10px !important;
+        margin: 0 0 10px 0 !important;
+        padding: 10px 12px !important;
+        border-radius: 12px !important;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe) !important;
+        border: 1px solid #bfdbfe !important;
+      }
+      #tchat-hire .tchat-hire-btn{
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 8px 12px !important;
+        border-radius: 10px !important;
+        background: #0078d4 !important;
+        color: #fff !important;
+        font-size: 12.5px !important;
+        font-weight: 800 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+      }
+      #tchat-hire .tchat-hire-link{
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        color: #0078d4 !important;
+        text-decoration: none !important;
+        padding: 8px 10px !important;
+        border-radius: 10px !important;
+        background: rgba(255,255,255,0.9) !important;
+        border: 1px solid #bfdbfe !important;
+        white-space: nowrap !important;
+      }
+
       #tchat-inputrow { display: flex !important; align-items: center !important; gap: 8px !important; }
       #tchat-inp {
         flex: 1 !important;
@@ -459,7 +462,6 @@
       }
       #tchat-send.on { opacity: 1 !important; }
 
-      /* Removed branding line */
       #tchat-brand { display: none !important; }
 
       #tchat-root .tc-fu { margin: 9px 0 0 0 !important; display: flex !important; flex-wrap: wrap !important; gap: 6px !important; }
@@ -481,7 +483,6 @@
 
       @media (max-width: 420px) {
         #tchat-win { width: calc(100vw - 28px) !important; right: 14px !important; bottom: 92px !important; height: 560px !important; }
-        #tchat-chips { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
       }
     </style>
 
@@ -527,15 +528,15 @@
 
         <div id="tchat-msgs"></div>
 
-        <div id="tchat-chips">
-          <button class="tc-chip" type="button">👤 About</button>
-          <button class="tc-chip" type="button">🚀 Projects</button>
-          <button class="tc-chip" type="button">🛠 Skills</button>
-          <button class="tc-chip" type="button">📬 Contact</button>
-          <button class="tc-chip" type="button">💼 Experience</button>
-        </div>
-
         <div id="tchat-foot">
+          <div id="tchat-hire">
+            <a
+              href="mailto:Tanishq0630@gmail.com?subject=Hiring%20Inquiry%20from%20Portfolio&body=Hi%20Tanishq%2C%0A%0AI%20would%20love%20to%20connect%20about%20a%20role.%0A%0AName%3A%0ACompany%3A%0ARole%3A%0A%0AThanks%2C"
+              class="tchat-hire-btn"
+            >💼 Hire Me</a>
+            <a href="https://www.linkedin.com/in/tanishqmishra/" target="_blank" rel="noopener" class="tchat-hire-link">LinkedIn</a>
+          </div>
+
           <div id="tchat-inputrow">
             <textarea id="tchat-inp" placeholder="Ask about Tanishq's work, skills, projects…" rows="1"></textarea>
             <button id="tchat-send" type="button" aria-label="Send message">
@@ -615,7 +616,6 @@
         var msgs = document.getElementById("tchat-msgs");
         var inp = document.getElementById("tchat-inp");
         var sendBtn = document.getElementById("tchat-send");
-        var chips = document.querySelectorAll("#tchat-chips .tc-chip");
         var pip = document.getElementById("tchat-pip");
         var welcome = document.getElementById("tchat-welcome");
 
@@ -645,21 +645,6 @@
 
         fab.addEventListener("click", toggle);
         closeBtn.addEventListener("click", toggle);
-
-        var CM = {
-          "👤 About": "Tell me about Tanishq. Who is he and what does he do?",
-          "🚀 Projects": "What are Tanishq's best projects?",
-          "🛠 Skills": "What are Tanishq's key skills?",
-          "📬 Contact": "How can I contact or hire Tanishq?",
-          "💼 Experience": "What professional experience does Tanishq have?"
-        };
-
-        chips.forEach(function (c) {
-          c.addEventListener("click", function () {
-            hideWelcome();
-            go(CM[c.textContent.trim()] || c.textContent);
-          });
-        });
 
         inp.addEventListener("input", function () {
           inp.style.height = "auto";
@@ -722,7 +707,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: contents,
-              generationConfig: { maxOutputTokens: 600, temperature: 0.7 }
+              generationConfig: { maxOutputTokens: 220, temperature: 0.7 }
             })
           })
             .then(function (r) {
