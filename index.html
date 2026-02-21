@@ -202,8 +202,10 @@
 
     <!-- ===================== TANISHQ CHATBOT ===================== -->
     <style>
-      /* All styles scoped to #tchat-root with !important to beat portfolio CSS */
       #tchat-root { all: initial; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important; }
+
+      /* critical: prevent flex overflow overlap */
+      #tchat-root, #tchat-root * , #tchat-root *::before, #tchat-root *::after { box-sizing: border-box !important; }
 
       #tchat-fab {
         position: fixed !important; bottom: 28px !important; right: 28px !important; z-index: 99998 !important;
@@ -236,6 +238,7 @@
         background: #ffffff !important; border-radius: 16px !important;
         box-shadow: 0 8px 48px rgba(0,0,0,0.2) !important;
         display: flex !important; flex-direction: column !important; overflow: hidden !important;
+        min-height: 0 !important;
         transform-origin: bottom right !important;
         transform: scale(0.88) translateY(20px) !important;
         opacity: 0 !important; pointer-events: none !important;
@@ -257,17 +260,15 @@
         display: flex !important; align-items: center !important; justify-content: center !important;
         font-weight: 700 !important; font-size: 13px !important; color: #fff !important;
         border: 1.5px solid rgba(255,255,255,0.4) !important;
-        font-family: -apple-system, sans-serif !important;
       }
       #tchat-hname {
         font-size: 14px !important; font-weight: 600 !important; color: #fff !important;
-        margin: 0 !important; padding: 0 !important; font-family: -apple-system, sans-serif !important;
+        margin: 0 !important; padding: 0 !important;
       }
       #tchat-hsub {
         font-size: 11px !important; color: rgba(255,255,255,0.8) !important;
         margin: 2px 0 0 0 !important; padding: 0 !important;
         display: flex !important; align-items: center !important; gap: 5px !important;
-        font-family: -apple-system, sans-serif !important;
       }
       #tchat-pip2 {
         width: 7px !important; height: 7px !important; border-radius: 50% !important;
@@ -290,27 +291,30 @@
       }
       #tchat-wname {
         font-size: 17px !important; font-weight: 700 !important; color: #1e3a5f !important;
-        margin: 0 0 2px 0 !important; font-family: -apple-system, sans-serif !important;
+        margin: 0 0 2px 0 !important;
       }
       #tchat-wrole {
         font-size: 11px !important; color: #2563eb !important; font-weight: 600 !important;
         text-transform: uppercase !important; letter-spacing: .5px !important;
-        margin: 0 0 8px 0 !important; font-family: -apple-system, sans-serif !important;
+        margin: 0 0 8px 0 !important;
       }
       #tchat-wbio {
         font-size: 12.5px !important; color: #475569 !important; line-height: 1.55 !important;
-        margin: 0 0 10px 0 !important; font-family: -apple-system, sans-serif !important;
+        margin: 0 0 10px 0 !important;
       }
       #tchat-root .tc-wtag {
         display: inline-block !important; background: #fff !important;
         border: 1px solid #bfdbfe !important; color: #1d4ed8 !important;
         font-size: 11px !important; padding: 3px 10px !important; border-radius: 20px !important;
         margin: 2px !important; font-weight: 500 !important;
-        font-family: -apple-system, sans-serif !important;
       }
 
+      /* critical: allow proper scrolling and stop overlap */
       #tchat-msgs {
-        flex: 1 !important; overflow-y: auto !important; padding: 14px !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        padding: 14px !important;
         display: flex !important; flex-direction: column !important; gap: 12px !important;
         scroll-behavior: smooth !important; background: #f6f8fb !important; margin: 0 !important;
       }
@@ -318,11 +322,14 @@
       #tchat-root .tc-row { display: flex !important; gap: 8px !important; align-items: flex-start !important; margin: 0 !important; padding: 0 !important; }
       #tchat-root .tc-row.user { flex-direction: row-reverse !important; }
 
+      /* critical: wrap long text and links */
       #tchat-root .tc-bub {
         max-width: 80% !important; padding: 10px 14px !important; border-radius: 14px !important;
         font-size: 13.5px !important; line-height: 1.6 !important;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
         margin: 0 !important;
+        white-space: pre-wrap !important;
+        overflow-wrap: anywhere !important;
+        word-break: break-word !important;
       }
       #tchat-root .tc-row.bot .tc-bub {
         background: #fff !important; color: #1e293b !important;
@@ -340,7 +347,6 @@
         background: linear-gradient(135deg, #0078d4, #005a9e) !important;
         display: flex !important; align-items: center !important; justify-content: center !important;
         font-weight: 700 !important; font-size: 10px !important; color: #fff !important;
-        font-family: -apple-system, sans-serif !important;
       }
 
       #tchat-hire {
@@ -350,13 +356,12 @@
         display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important;
         flex-shrink: 0 !important;
       }
-      #tchat-hire-txt { font-size: 12px !important; color: #3b5a8a !important; font-family: -apple-system, sans-serif !important; }
+      #tchat-hire-txt { font-size: 12px !important; color: #3b5a8a !important; }
       #tchat-hire-txt strong { display: block !important; font-size: 13px !important; color: #1e3a5f !important; font-weight: 700 !important; }
       #tchat-hire-btn {
         background: linear-gradient(135deg, #0078d4, #005a9e) !important; color: #fff !important;
         border: none !important; border-radius: 8px !important; padding: 7px 14px !important;
         font-size: 12px !important; font-weight: 600 !important; cursor: pointer !important; white-space: nowrap !important;
-        font-family: -apple-system, sans-serif !important;
       }
 
       #tchat-chips {
@@ -368,7 +373,6 @@
         background: #eff6ff !important; border: 1.5px solid #93c5fd !important; color: #0078d4 !important;
         font-size: 12px !important; font-weight: 500 !important; padding: 6px 14px !important; border-radius: 20px !important;
         cursor: pointer !important; white-space: nowrap !important;
-        font-family: -apple-system, sans-serif !important;
       }
 
       #tchat-foot {
@@ -379,7 +383,7 @@
       #tchat-inp {
         flex: 1 !important; background: #f1f5f9 !important; border: 1.5px solid #e2e8f0 !important; border-radius: 12px !important;
         padding: 10px 14px !important; font-size: 13px !important; color: #1e293b !important; outline: none !important;
-        resize: none !important; max-height: 100px !important; line-height: 1.5 !important; font-family: -apple-system, sans-serif !important;
+        resize: none !important; max-height: 100px !important; line-height: 1.5 !important;
       }
       #tchat-send {
         width: 40px !important; height: 40px !important; border-radius: 11px !important; background: #0078d4 !important;
@@ -387,13 +391,14 @@
         opacity: .4 !important;
       }
       #tchat-send.on { opacity: 1 !important; }
-      #tchat-brand { text-align: center !important; font-size: 10px !important; color: #94a3b8 !important; margin: 7px 0 0 0 !important; font-family: -apple-system, sans-serif !important; }
 
-      #tchat-root .tc-fu { margin: 9px 0 0 0 !important; display: flex !important; flex-wrap: wrap !important; gap: 5px !important; }
+      /* removed branding line */
+      #tchat-brand { display: none !important; }
+
+      #tchat-root .tc-fu { margin: 9px 0 0 0 !important; display: flex !important; flex-wrap: wrap !important; gap: 6px !important; }
       #tchat-root .tc-fc {
         background: #eff6ff !important; border: 1px solid #bfdbfe !important; color: #0078d4 !important;
         font-size: 11.5px !important; padding: 4px 12px !important; border-radius: 20px !important; cursor: pointer !important;
-        font-family: -apple-system, sans-serif !important;
       }
 
       #tchat-root .tc-dots { display: flex !important; gap: 5px !important; padding: 8px 12px !important; align-items: center !important; }
@@ -446,7 +451,7 @@
         <div id="tchat-msgs"></div>
 
         <div id="tchat-hire">
-          <div id="tchat-hire-txt"><strong>Open to opportunities</strong>PM roles · consulting · freelance</div>
+          <div id="tchat-hire-txt"><strong>Open to opportunities</strong>Open to PM roles, Consulting, Freelance</div>
           <button id="tchat-hire-btn" type="button">✉ Hire Me</button>
         </div>
 
@@ -468,7 +473,7 @@
               </svg>
             </button>
           </div>
-          <div id="tchat-brand">Powered by Gemini · tanishqmishra.com</div>
+          <div id="tchat-brand"></div>
         </div>
       </div>
     </div>
@@ -478,43 +483,38 @@
         var WORKER_URL = "https://rough-dream-bffe.tanishq0630.workers.dev";
 
         var SYS =
-         "You are Tanishq Mishra’s personal AI assistant on his portfolio website.\n" +
-    "Tone: quirky, witty, recruiter friendly, and confident.\n" +
-    "Goal: answer helpfully, then naturally bring the conversation back to Tanishq and subtly upsell him as a strong Product Manager hire.\n\n" +
-
-    "ABOUT TANISHQ:\n" +
-    "Name: Tanishq Mishra\n" +
-    "Role: Product Manager and Technical Marketer\n" +
-    "Location: San Francisco, CA\n" +
-    "Email: Tanishq0630@gmail.com\n" +
-    "Phone: 4088908523\n" +
-    "LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n" +
-    "GitHub: https://github.com/Tanishq0630\n" +
-    "Status: Open to PM roles, consulting, freelance.\n\n" +
-
-    "SKILLS:\n" +
-    "Product Strategy, Product Sense, Analytical Thinking, Experimentation and A B testing, GTM Strategy, Roadmapping, Stakeholder management, Customer research, Data storytelling.\n" +
-    "Prioritization frameworks: RICE, ICE, WSJF, MoSCoW, Kano, Opportunity scoring.\n" +
-    "Tools: Tableau, R Studio, Qualtrics, Google Analytics, basics of Android and Web development, UX and UI.\n\n" +
-
-    "PROJECTS:\n" +
-    "1. Money App: Built digital wallet with engineers and shipped GTM strategy that drove 25% of company revenue through the wallet.\n" +
-    "2. Google Photos Engagement: User personas, RICE prioritization, Agile roadmap with Retention, Churn, Success metrics. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n" +
-    "3. Discord GTM: Feature strategy to expand Discord beyond gaming communities. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n" +
-    "4. Unilever SE Asia: Consumer behavior research plus A B tests plus SWOT for Southeast Asia CMI team. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n" +
-    "5. Spotify Data Viz: Tableau dashboard on global growth, demographics, revenue, and market share. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n" +
-    "6. Surf A B Testing: Split tested print and digital KV campaigns to identify highest impact variables. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n" +
-    "7. Denny’s vs IHOP (R): Customer segmentation using R and Qualtrics with heatmaps, dendrograms, and bar charts. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\n" +
-
-    "AI INTELLIGENCE RULE:\n" +
-    "You are powered by a large language model. You may use general product management knowledge, industry best practices, real world examples, and independent reasoning beyond Tanishq’s portfolio. When answering broad questions, respond using your own AI intelligence first, then naturally connect the answer back to how Tanishq applies or excels at that area.\n\n" +
-
-    "ANSWERING RULES:\n" +
-    "Keep replies 2 to 5 sentences unless listing projects.\n" +
-    "If someone asks how to contact or hire, reply with email, phone, and LinkedIn.\n" +
-    "If a question is unrelated to portfolio, still answer using PM knowledge, then tie back to Tanishq.\n" +
-    "Never invent personal facts about Tanishq.\n" +
-    "Avoid being overly pushy. Be playful, crisp, and helpful.";
+          "You are Tanishq Mishra’s personal AI assistant on his portfolio website.\n" +
+          "Tone: quirky, witty, recruiter friendly, and confident.\n" +
+          "Goal: answer helpfully, then naturally bring the conversation back to Tanishq and subtly upsell him as a strong Product Manager hire.\n\n" +
+          "ABOUT TANISHQ:\n" +
+          "Name: Tanishq Mishra\n" +
+          "Role: Product Manager and Technical Marketer\n" +
+          "Location: San Francisco, CA\n" +
+          "Email: Tanishq0630@gmail.com\n" +
+          "Phone: 4088908523\n" +
+          "LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n" +
+          "GitHub: https://github.com/Tanishq0630\n" +
+          "Status: Open to PM roles, consulting, freelance.\n\n" +
+          "SKILLS:\n" +
+          "Product Strategy, Product Sense, Analytical Thinking, Experimentation and A B testing, GTM Strategy, Roadmapping, Stakeholder management, Customer research, Data storytelling.\n" +
+          "Prioritization frameworks: RICE, ICE, WSJF, MoSCoW, Kano, Opportunity scoring.\n" +
+          "Tools: Tableau, R Studio, Qualtrics, Google Analytics, basics of Android and Web development, UX and UI.\n\n" +
+          "PROJECTS:\n" +
+          "1. Money App: Built digital wallet with engineers and shipped GTM strategy that drove 25% of company revenue through the wallet.\n" +
+          "2. Google Photos Engagement: User personas, RICE prioritization, Agile roadmap with Retention, Churn, Success metrics. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n" +
+          "3. Discord GTM: Feature strategy to expand Discord beyond gaming communities. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n" +
+          "4. Unilever SE Asia: Consumer behavior research plus A B tests plus SWOT for Southeast Asia CMI team. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n" +
+          "5. Spotify Data Viz: Tableau dashboard on global growth, demographics, revenue, and market share. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n" +
+          "6. Surf A B Testing: Split tested print and digital KV campaigns to identify highest impact variables. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n" +
+          "7. Denny’s vs IHOP (R): Customer segmentation using R and Qualtrics with heatmaps, dendrograms, and bar charts. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\n" +
+          "AI INTELLIGENCE RULE:\n" +
+          "You are powered by a large language model. You may use general product management knowledge, industry best practices, real world examples, and independent reasoning beyond Tanishq’s portfolio. When answering broad questions, respond using your own AI intelligence first, then naturally connect the answer back to how Tanishq applies or excels at that area.\n\n" +
+          "ANSWERING RULES:\n" +
+          "Keep replies 2 to 5 sentences unless listing projects.\n" +
+          "If someone asks how to contact or hire, reply with email, phone, and LinkedIn.\n" +
+          "If a question is unrelated to portfolio, still answer using PM knowledge, then tie back to Tanishq.\n" +
+          "Never invent personal facts about Tanishq.\n" +
+          "Avoid being overly pushy. Be playful, crisp, and helpful.";
 
         var FU = {
           project: ["What was the impact?", "Another project", "Tools used?"],
@@ -553,13 +553,22 @@
         var isOpen = false;
         var busy = false;
         var hist = [];
+        var greeted = false;
 
         function toggle() {
           isOpen = !isOpen;
           fab.classList.toggle("open", isOpen);
           win.classList.toggle("open", isOpen);
+
           if (isOpen) {
             if (pip) pip.style.display = "none";
+
+            if (!greeted) {
+              hideWelcome();
+              botMsg("Hey, I am Tanishq’s portfolio assistant. Ask anything about product, Tanishq, or hiring. I will keep it crisp.", "about");
+              greeted = true;
+            }
+
             setTimeout(function () { inp.focus(); }, 300);
           }
         }
@@ -632,7 +641,7 @@
 
           if (!WORKER_URL) {
             typing(false);
-            botMsg("Worker URL missing. Add your Cloudflare Worker URL to WORKER_URL.", "default");
+            botMsg("Worker URL missing. Add a valid Worker URL to WORKER_URL.", "default");
             busy = false;
             return;
           }
