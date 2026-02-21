@@ -555,33 +555,37 @@
       (function () {
         var WORKER_URL = "https://rough-dream-bffe.tanishq0630.workers.dev";
 
+        var PROFILE_URL = "assets/data/tanishq_mishra_profile.json";
+        var PROFILE_TEXT = "";
+        var profileLoadedOnce = false;
+
+        function loadProfile() {
+          return fetch(PROFILE_URL, { cache: "no-store" })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+              if (!j) { PROFILE_TEXT = ""; profileLoadedOnce = true; return; }
+              PROFILE_TEXT =
+                "PROFILE DATA (source of truth about Tanishq):\n" +
+                JSON.stringify(j, null, 2) +
+                "\n\n";
+              profileLoadedOnce = true;
+            })
+            .catch(function () {
+              PROFILE_TEXT = "";
+              profileLoadedOnce = true;
+            });
+        }
+
+        function ensureProfileLoaded(done) {
+          if (profileLoadedOnce) { done(); return; }
+          loadProfile().finally(function () { done(); });
+        }
+
         var SYS =
           "You are Tanishq Mishra’s personal AI assistant on his portfolio website.\n" +
           "Tone: quirky, witty, recruiter friendly, and confident.\n" +
           "Goal: answer helpfully, then naturally bring the conversation back to Tanishq and subtly upsell him as a strong Product Manager hire.\n\n" +
-          "ABOUT TANISHQ:\n" +
-          "Name: Tanishq Mishra\n" +
-          "Role: Product Manager and Technical Marketer\n" +
-          "Location: San Francisco, CA\n" +
-          "Email: Tanishq0630@gmail.com\n" +
-          "Phone: 4088908523\n" +
-          "LinkedIn: https://www.linkedin.com/in/tanishqmishra/\n" +
-          "GitHub: https://github.com/Tanishq0630\n" +
-          "Status: Open to PM roles, consulting, freelance.\n\n" +
-          "SKILLS:\n" +
-          "Product Strategy, Product Sense, Analytical Thinking, Experimentation and A B testing, GTM Strategy, Roadmapping, Stakeholder management, Customer research, Data storytelling.\n" +
-          "Prioritization frameworks: RICE, ICE, WSJF, MoSCoW, Kano, Opportunity scoring.\n" +
-          "Tools: Tableau, R Studio, Qualtrics, Google Analytics, basics of Android and Web development, UX and UI.\n\n" +
-          "PROJECTS:\n" +
-          "1. Money App: Built digital wallet with engineers and shipped GTM strategy that drove 25% of company revenue through the wallet.\n" +
-          "2. Google Photos Engagement: User personas, RICE prioritization, Agile roadmap with Retention, Churn, Success metrics. Deck: https://www.slideshare.net/TanishqMishra11/google-photos-gtmpdfpdf\n" +
-          "3. Discord GTM: Feature strategy to expand Discord beyond gaming communities. Deck: https://www.slideshare.net/TanishqMishra11/discord-gtmpdf\n" +
-          "4. Unilever SE Asia: Consumer behavior research plus A B tests plus SWOT for Southeast Asia CMI team. Drive: https://drive.google.com/drive/folders/15NcadCi-RQEZym6bnXpYeBbolK7-J6BU\n" +
-          "5. Spotify Data Viz: Tableau dashboard on global growth, demographics, revenue, and market share. Link: https://public.tableau.com/app/profile/tanishq.mishra2699/viz/SpotifyGlobalGrowth/Dashboard1\n" +
-          "6. Surf A B Testing: Split tested print and digital KV campaigns to identify highest impact variables. Drive: https://drive.google.com/drive/folders/1IY8D4pC7eaX0yTwSPK-QgWFQu2NzBekI\n" +
-          "7. Denny’s vs IHOP (R): Customer segmentation using R and Qualtrics with heatmaps, dendrograms, and bar charts. GitHub: https://github.com/Tanishq0630/Denny-s-Customer-Seg-Using-R\n\n" +
-          "AI INTELLIGENCE RULE:\n" +
-          "You are powered by a large language model. You may use general product management knowledge, industry best practices, real world examples, and independent reasoning beyond Tanishq’s portfolio. When answering broad questions, respond using your own AI intelligence first, then naturally connect the answer back to how Tanishq applies or excels at that area.\n\n" +
+          "Use PROFILE DATA as the primary source of truth.\n\n" +
           "ANSWERING RULES:\n" +
           "Keep replies 2 to 5 sentences unless listing projects.\n" +
           "If someone asks how to contact or hire, reply with email, phone, and LinkedIn.\n" +
@@ -637,8 +641,10 @@
 
             if (!greeted) {
               hideWelcome();
-              botMsg("Hey! I am Tanishq’s portfolio assistant. Ask anything about Product, GTM, experiments, or his work. I will keep it crisp, a bit witty, and hiring friendly 😄", "about");
-              greeted = true;
+              ensureProfileLoaded(function () {
+                botMsg("Hey! I am Tanishq’s portfolio assistant. Ask anything about Product, GTM, experiments, or his work. I will keep it crisp, a bit witty, and hiring friendly 😄", "about");
+                greeted = true;
+              });
             }
           }
         }
@@ -695,50 +701,55 @@
             return;
           }
 
-          var contents = [];
-          for (var i = 0; i < hist.length; i++) {
-            var role = hist[i].role === "assistant" ? "model" : "user";
-            var msgText = i === 0 ? (SYS + "\n\nUser question: " + hist[i].content) : hist[i].content;
-            contents.push({ role: role, parts: [{ text: msgText }] });
-          }
+          ensureProfileLoaded(function () {
+            var contents = [];
+            for (var i = 0; i < hist.length; i++) {
+              var role = hist[i].role === "assistant" ? "model" : "user";
+              var msgText =
+                i === 0
+                  ? (SYS + "\n\n" + PROFILE_TEXT + "User question: " + hist[i].content)
+                  : hist[i].content;
+              contents.push({ role: role, parts: [{ text: msgText }] });
+            }
 
-          fetch(WORKER_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: contents,
-              generationConfig: { maxOutputTokens: 220, temperature: 0.7 }
+            fetch(WORKER_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: contents,
+                generationConfig: { maxOutputTokens: 220, temperature: 0.7 }
+              })
             })
-          })
-            .then(function (r) {
-              if (!r.ok) throw new Error("HTTP " + r.status);
-              return r.json();
-            })
-            .then(function (d) {
-              typing(false);
+              .then(function (r) {
+                if (!r.ok) throw new Error("HTTP " + r.status);
+                return r.json();
+              })
+              .then(function (d) {
+                typing(false);
 
-              var reply =
-                d &&
-                d.candidates &&
-                d.candidates[0] &&
-                d.candidates[0].content &&
-                d.candidates[0].content.parts &&
-                d.candidates[0].content.parts[0] &&
-                d.candidates[0].content.parts[0].text
-                  ? d.candidates[0].content.parts[0].text
-                  : "No response. Email Tanishq at Tanishq0630@gmail.com.";
+                var reply =
+                  d &&
+                  d.candidates &&
+                  d.candidates[0] &&
+                  d.candidates[0].content &&
+                  d.candidates[0].content.parts &&
+                  d.candidates[0].content.parts[0] &&
+                  d.candidates[0].content.parts[0].text
+                    ? d.candidates[0].content.parts[0].text
+                    : "No response. Email Tanishq at Tanishq0630@gmail.com.";
 
-              hist.push({ role: "assistant", content: reply });
-              botMsg(reply, detectTopic(text));
-            })
-            .catch(function (e) {
-              typing(false);
-              console.error("Chatbot error:", e);
-              botMsg("Connection issue (" + e.message + "). Reach Tanishq at Tanishq0630@gmail.com.", "contact");
-            })
-            .finally(function () {
-              busy = false;
-            });
+                hist.push({ role: "assistant", content: reply });
+                botMsg(reply, detectTopic(text));
+              })
+              .catch(function (e) {
+                typing(false);
+                console.error("Chatbot error:", e);
+                botMsg("Connection issue (" + e.message + "). Reach Tanishq at Tanishq0630@gmail.com.", "contact");
+              })
+              .finally(function () {
+                busy = false;
+              });
+          });
         }
 
         function detectTopic(t) {
